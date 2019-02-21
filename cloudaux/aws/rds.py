@@ -7,7 +7,7 @@ from cloudaux.aws.decorators import rate_limited, paginated
 @rate_limited()
 def describe_db_instances(client=None):
     """
-    Permission: elasticloadbalancing:DescribeLoadBalancers
+    Permission: rds:DescribeDBInstances
     """
     kwargs = dict()
     return client.describe_db_instances(**kwargs)
