@@ -193,7 +193,7 @@ def sts_conn(service, service_type='client', future_expiration_minutes=15):
                     region=kwargs.pop('region', 'us-east-1'),
                     arn_partition=kwargs.pop('arn_partition', 'aws'),
                     serial_number=kwargs.pop('serial_number', None),
-                    token_code+kwargs.pop('token_code', None)
+                    token_code=kwargs.pop('token_code', None)
                 )
             return f(*args, **kwargs)
         return decorated_function
