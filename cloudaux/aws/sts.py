@@ -63,7 +63,7 @@ def _get_cached_creds(key, service, service_type, region, future_expiration_minu
 @rate_limited()
 def boto3_cached_conn(service, service_type='client', future_expiration_minutes=15, account_number=None,
                       assume_role=None, session_name='cloudaux', region='us-east-1', return_credentials=False,
-                      external_id=None, arn_partition='aws'):
+                      external_id=None, arn_partition='aws', serial_number=None, token_code=None):
     """
     Used to obtain a boto3 client or resource connection.
     For cross account, provide both account_number and assume_role.
@@ -92,6 +92,8 @@ def boto3_cached_conn(service, service_type='client', future_expiration_minutes=
     :param external_id: Optional external id to pass to sts:AssumeRole.
         See https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html
     :param arn_partition: Optional parameter to specify other aws partitions such as aws-us-gov for aws govcloud
+    :param serial_number: Optional MFA Device ARN to pass to sts:AssumeRole typically used if aws:MultiFactorAuthPresent is configured for a role.
+    :param token_code: Optional MFA TOTP code that needs to be sent with the sts:AssumeRole request.
     :return: boto3 client or resource connection
     """
     key = (
@@ -131,6 +133,10 @@ def boto3_cached_conn(service, service_type='client', future_expiration_minutes=
 
         if external_id:
             assume_role_kwargs['ExternalId'] = external_id
+            
+        if serial_number and token_code:
+            assume_role_kwargs['SerialNumber'] = serial_number
+            assume_role_kwargs['TokenCode'] = token_code
 
         role = sts.assume_role(**assume_role_kwargs)
 
@@ -158,6 +164,8 @@ def sts_conn(service, service_type='client', future_expiration_minutes=15):
     - Region (Optional, but recommended)
     - AWS Partition (Optional, defaults to 'aws' if none specified)
     - IAM Session Name (Optional, but recommended to appear in CloudTrail)
+    - Serial Number (Optional, needed if Assume Role requires MFA)
+    - Token Code (Optional, MFA value if needed for Assume Role)
 
     If `force_client` is set to a boto3 client, then this will simply pass that in as the client.
     `force_client` is mostly useful for mocks and tests.
@@ -183,7 +191,9 @@ def sts_conn(service, service_type='client', future_expiration_minutes=15):
                     session_name=kwargs.pop('session_name', 'cloudaux'),
                     external_id=kwargs.pop('external_id', None),
                     region=kwargs.pop('region', 'us-east-1'),
-                    arn_partition=kwargs.pop('arn_partition', 'aws')
+                    arn_partition=kwargs.pop('arn_partition', 'aws'),
+                    serial_number=kwargs.pop('serial_number', None),
+                    token_code+kwargs.pop('token_code', None)
                 )
             return f(*args, **kwargs)
         return decorated_function
