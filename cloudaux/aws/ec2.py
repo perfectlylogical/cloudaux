@@ -86,10 +86,11 @@ def add_groups_to_instance(instance_id, groups, account_number=None, region=None
     client.modify_instance_attribute(InstanceId=instance_id, Groups=groups)
 
 
+@paginated('Reservations', request_pagination_marker='NextToken', response_pagination_marker='NextToken')
 @sts_conn('ec2')
 @rate_limited()
-def describe_instances(**kwargs):
-    return kwargs.pop('client').get_paginator('describe_instances').paginate()
+def describe_instances(client=None,**kwargs):
+  return client.describe_instances(**kwargs)
 
 
 @sts_conn('ec2')
@@ -110,10 +111,10 @@ def describe_image_attribute(**kwargs):
     return kwargs.pop('client').describe_image_attribute(**kwargs)
 
 
+@paginated('SecurityGroups', request_pagination_marker='NextToken', response_pagination_marker='NextToken')
 @sts_conn('ec2')
-@rate_limited()
-def describe_security_groups(**kwargs):
-    return kwargs.pop('client').describe_security_groups(**kwargs)
+def describe_security_groups(client=None,**kwargs):
+  return client.describe_security_groups(**kwargs)
 
 
 @sts_conn('ec2')
