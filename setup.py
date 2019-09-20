@@ -40,7 +40,7 @@ install_requires = [
     'joblib>=0.9.4',
     'inflection',
     'flagpole>=1.0.1',
-    'defusedxml==0.5.0',
+    'defusedxml',
     'six>=1.11.0',
 ]
 
@@ -76,6 +76,7 @@ setup(
     url=about["__uri__"],
     description=about["__summary__"],
     long_description=open(os.path.join(ROOT, 'README.md')).read(),
+    long_description_content_type="text/markdown",
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
